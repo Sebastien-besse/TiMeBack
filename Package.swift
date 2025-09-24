@@ -2,7 +2,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "testVapor",
+    name: "TiMeBack",
     platforms: [
        .macOS(.v13)
     ],
