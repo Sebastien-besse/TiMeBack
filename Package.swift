@@ -4,6 +4,7 @@ import PackageDescription
 let package = Package(
     name: "TiMeBack",
     platforms: [
+        .iOS(.v13),
        .macOS(.v13)
     ],
     dependencies: [
