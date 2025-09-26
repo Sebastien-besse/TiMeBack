@@ -10,8 +10,10 @@ import Fluent
 
 final class User: Model, Content, @unchecked Sendable{
     
-    static let schema = "User"
+    //MARK: lien à la table
+    static let schema = "users"
     
+    //MARK: Atributs liés au colonne
     @ID(key: .id)
     var id: UUID?
     
@@ -31,23 +33,33 @@ final class User: Model, Content, @unchecked Sendable{
     var password: String
     
     @Field(key: "streak_number")
-    var streakNumber: Int?
+    var streakNumber: Int
     
-    @Field(key: "role")
-    var role: String
+    enum Role: String, Codable{
+        case user
+        case admin
+    }
+    
+    @Enum(key: "role")
+    var role: Role
     
     @Field(key: "challenge_number")
     var challengeNumber: Int
     
+    //MARK: Relation
+    
+    
+    
+    //MARK: Constructeur
     init() {}
     
-    init(userName: String, firstName: String, lastName: String, email: String, password: String, streakNumber: Int?, role: String, challengeNumber: Int ){
+    init(userName: String, firstName: String, lastName: String, email: String, password: String, streakNumber: Int = 0, role: Role, challengeNumber: Int = 0 ){
         self.userName = userName
         self.firstName = firstName
         self.lastName = lastName
         self.email = email
         self.password = password
-        self.streakNumber = streakNumber ?? 0
+        self.streakNumber = streakNumber
         self.role = role
         self.challengeNumber = challengeNumber
     }
