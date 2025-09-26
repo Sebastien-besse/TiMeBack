@@ -13,7 +13,7 @@ app.databases.use(DatabaseConfigurationFactory.mysql(
         port: Environment.get("DATABASE_PORT").flatMap(Int.init(_:)) ?? 3306,
         username: Environment.get("DATABASE_USERNAME") ?? "root",
         password: Environment.get("DATABASE_PASSWORD") ?? "",
-        database: Environment.get("DATABASE_NAME") ?? "Projet_developpement_personnel"
+        database: Environment.get("DATABASE_NAME") ?? "TiMeDatabase"
     ), as: .mysql)
 
     
