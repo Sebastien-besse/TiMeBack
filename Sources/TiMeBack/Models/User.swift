@@ -14,7 +14,7 @@ final class User: Model, Content, @unchecked Sendable{
     static let schema = "users"
     
     //MARK: Atributs liés au colonne
-    @ID(key: .id)
+    @ID(custom: "id_user")
     var id: UUID?
     
     @Field(key: "username")
