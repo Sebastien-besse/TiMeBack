@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  Challenge.swift
 //  TiMeBack
 //
 //  Created by Apprenant125 on 29/09/2025.
@@ -14,13 +14,13 @@ final class Challenge: Model, Content, @unchecked Sendable {
     static let schema: String = "challenges"
 
     //MARK: Atributs liés aux colonnes
-    @ID(key: .id)
+    @ID(custom: "id_challenge")
     var id: UUID?
     
-    @Field(key: "instruction")
+    @Field(key: "intruction")
     var instruction : String
     
-    @Field(key: "message_motivation")
+    @Field(key: "motivation_message")
     var messageMotivation : String
     
     //MARK: Relation

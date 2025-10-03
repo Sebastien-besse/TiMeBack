@@ -10,4 +10,5 @@ app.get { req async in
         "Hello, world!"
     }
     try app.register(collection: UserController())
+    try app.register(collection: ChallengeController())
 }
