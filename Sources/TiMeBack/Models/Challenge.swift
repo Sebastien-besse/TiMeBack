@@ -27,7 +27,7 @@ final class Challenge: Model, Content, @unchecked Sendable {
     //est lié à exercices
     
     
-    
+
     //MARK: Constructeurs
     init() { }
     

@@ -9,6 +9,10 @@ app.get { req async in
     app.get("hello") { req async -> String in
         "Hello, world!"
     }
+    
     try app.register(collection: UserController())
     try app.register(collection: ChallengeController())
+    try app.register(collection: EmotionController())
+    try app.register(collection: EmotionCategoryController())
+    try app.register(collection: EmotionOfTheDayController())
 }
