@@ -16,7 +16,7 @@ struct UserController: RouteCollection{
     
     func createUser(_ req: Request) async throws -> UserPublicDTO{
         let dto = try req.content.decode(CreateUserDTO.self)
-        let user = User(userName: dto.userName, firstName: dto.firstName, lastName: dto.lastName, email: dto.email, password: dto.password, role: User.Role.user)
+        let user = User(userName: dto.userName, firstName: dto.firstName, lastName: dto.lastName, email: dto.email, password: dto.password, role: User.Role.user, imageProfil: dto.imageProfil ?? "")
         try await user.create(on: req.db)
         return try UserPublicDTO(from: user)
     }

@@ -13,6 +13,7 @@ struct CreateUserDTO: Content{
     var userName: String
     var email: String
     var password: String
+    var imageProfil: String?
 }
 
 struct UserPublicDTO: Content{
