@@ -44,24 +44,25 @@ struct UserController: RouteCollection {
     // Upload d’image de profil
     func uploadImage(_ req: Request) async throws -> ImageUploadResponse {
         struct UploadData: Content { var file: File }
-
+        
         let upload = try req.content.decode(UploadData.self)
         let filename = UUID().uuidString + ".jpg"
         
         let uploadsDir = req.application.directory.publicDirectory + "uploads/"
         try FileManager.default.createDirectory(atPath: uploadsDir, withIntermediateDirectories: true)
-
-
+        
+        
         // 📁 Dossier où l’image sera stockée
         let savePath = uploadsDir + filename
         try await req.fileio.writeFile(upload.file.data, at: savePath)
-
+        
         // 🔗 URL publique pour accéder à l’image
         // Si tu testes sur iPhone, remplace localhost par ton IP locale (ex : 192.168.x.x)
         let publicURL = "http://127.0.0.1:8080/uploads/\(filename)"
-
-        return ImageUploadResponse(imageURL: publicURL)
         
+        return ImageUploadResponse(imageURL: publicURL)
+    }
+    
     func getAll(_ req: Request) async throws -> [UserPublicDTO] {
         let users = try await User.query(on: req.db).all()
         return try users.map { try UserPublicDTO(from: $0) }
