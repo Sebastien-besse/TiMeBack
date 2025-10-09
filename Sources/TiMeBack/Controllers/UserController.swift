@@ -11,14 +11,24 @@ struct UserController: RouteCollection{
    
     func boot(routes: any RoutesBuilder) throws{
         let users = routes.grouped("users")
+        
+        users.get(use: getAll)
         users.post(use: createUser)
     }
     
+    //MARK: - POST User
     func createUser(_ req: Request) async throws -> UserPublicDTO{
         let dto = try req.content.decode(CreateUserDTO.self)
-        let user = User(userName: dto.userName, firstName: dto.firstName, lastName: dto.lastName, email: dto.email, password: dto.password, role: User.Role.user)
+        let user = User(userName: dto.userName, firstName: dto.firstName, lastName: dto.lastName, email: dto.email, password: dto.password, role: User.Role.user, image: dto.image)
         try await user.create(on: req.db)
         return try UserPublicDTO(from: user)
+    }
+    
+    //MARK: - GET All User
+    @Sendable
+    func getAll(_ req: Request) async throws -> [UserPublicDTO] {
+        let users = try await User.query(on: req.db).all()
+        return try users.map { try UserPublicDTO(from: $0) }
     }
 }
     

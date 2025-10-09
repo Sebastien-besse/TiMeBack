@@ -3,10 +3,21 @@ import Fluent
 import FluentMySQLDriver
 import Vapor
 import FluentSQL
-// configures your application
+
 public func configure(_ app: Application) async throws {
-    // uncomment to serve files from /Public folder
-    // app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
+
+    app.http.server.configuration.hostname = "0.0.0.0"
+    app.http.server.configuration.port = 8080
+    
+    // Configuration globale pour encoder/décoder les dates en ISO8601 de Vapor vers Swift
+    let encoder = JSONEncoder()
+    encoder.dateEncodingStrategy = .iso8601
+    
+    let decoder = JSONDecoder()
+    decoder.dateDecodingStrategy = .iso8601
+    
+    ContentConfiguration.global.use(encoder: encoder, for: .json)
+    ContentConfiguration.global.use(decoder: decoder, for: .json)
 
 app.databases.use(DatabaseConfigurationFactory.mysql(
         hostname: Environment.get("DATABASE_HOST") ?? "127.0.0.1",

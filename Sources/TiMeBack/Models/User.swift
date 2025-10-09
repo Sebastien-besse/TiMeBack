@@ -46,14 +46,17 @@ final class User: Model, Content, @unchecked Sendable{
     @Field(key: "challenge_number")
     var challengeNumber: Int
     
-    //MARK: Relation
+    @Field(key: "image")
+    var image: String?
     
+    
+    //MARK: Relation
     
     
     //MARK: Constructeur
     init() {}
     
-    init(userName: String, firstName: String, lastName: String, email: String, password: String, streakNumber: Int = 0, role: Role, challengeNumber: Int = 0 ){
+    init(userName: String, firstName: String, lastName: String, email: String, password: String, streakNumber: Int = 0, role: Role, challengeNumber: Int = 0, image: String? = nil){
         self.userName = userName
         self.firstName = firstName
         self.lastName = lastName
@@ -62,8 +65,6 @@ final class User: Model, Content, @unchecked Sendable{
         self.streakNumber = streakNumber
         self.role = role
         self.challengeNumber = challengeNumber
+        self.image = image
     }
 }
-
-
-

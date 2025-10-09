@@ -29,7 +29,7 @@ final class EmotionCategory: Model, Content, @unchecked Sendable {
     //MARK: Constructeur
     init() {}
 
-    init(id: UUID? = nil, title: String) {
+    init(id: UUID? = nil, title: String, color: String) {
         self.id = id
         self.title = title
         self.color = color

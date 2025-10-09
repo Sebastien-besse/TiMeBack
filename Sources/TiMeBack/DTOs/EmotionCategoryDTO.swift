@@ -10,17 +10,21 @@ import Vapor
 struct EmotionCategoryDTO: Content, Identifiable {
     let id: UUID?
     let title: String
+    let color: String
 
     init(from category: EmotionCategory) {
         self.id = category.id
         self.title = category.title
+        self.color = category.color
     }
 }
 
 struct EmotionCategoryCreate: Content {
     let title: String
+    let color: String
 }
 
 struct EmotionCategoryUpdate: Content {
     let title: String
+    let color: String
 }

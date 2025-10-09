@@ -20,18 +20,18 @@ final class Emotion: Model, Content, @unchecked Sendable {
     @Field(key: "title")
     var title: String
     
-    @Field(key: "id_category_emotion")
-    var idCategoryEmotion: UUID?
+    @Parent(key: "id_category_emotion")
+    var category: EmotionCategory
     
     //MARK: Relation
     //est lié à CategoryEmotion
     
     //MARK: Constructeurs
     init() {}
-    
-    init(id: UUID? = nil, title: String, idCategoryEmotion: UUID? = nil) {
+
+    init(id: UUID? = nil, title: String, categoryID: EmotionCategory.IDValue) {
         self.id = id
         self.title = title
-        self.idCategoryEmotion = idCategoryEmotion
+        self.$category.id = categoryID
     }
 }

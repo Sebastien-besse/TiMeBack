@@ -16,19 +16,18 @@ struct EmotionOfTheDayDTO: Content, Identifiable {
     init(from emotionOfTheDay: EmotionOfTheDay) {
         self.id = emotionOfTheDay.id
         self.date = emotionOfTheDay.date
-        self.idUser = emotionOfTheDay.idUser
-        self.idEmotion = emotionOfTheDay.idEmotion
+        self.idUser = emotionOfTheDay.$user.id
+        self.idEmotion = emotionOfTheDay.$emotion.id
     }
 }
 
 struct EmotionOfTheDayCreate: Content {
     let date: Date
-    let idUser: UUID?
-    let idEmotion: UUID?
+    let idUser: UUID
+    let idEmotion: UUID
 }
 
-struct EEmotionOfTheDayUpdate: Content {
+struct EmotionOfTheDayUpdate: Content {
     let date: Date?
-    let idUser: UUID?
     let idEmotion: UUID?
-  }
+}

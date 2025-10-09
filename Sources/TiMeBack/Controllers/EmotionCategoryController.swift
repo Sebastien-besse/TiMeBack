@@ -11,11 +11,11 @@ struct EmotionCategoryController: RouteCollection {
     func boot(routes: any RoutesBuilder) throws {
         let categories = routes.grouped("emotion-category")
         
+        categories.get(use: listEmotionCategories)
         categories.get(":id", use: getEmotionCategoryById)
         categories.post(use: createEmotionCategory)
         categories.put(":id", use: updateEmotionCategory)
         categories.delete(":id", use: deleteEmotionCategory)
-        categories.get(use: listEmotionCategories)
     }
 }
 
@@ -40,7 +40,7 @@ func getEmotionCategoryById(_ req: Request) async throws -> EmotionCategoryDTO {
 @Sendable
 func createEmotionCategory(_ req: Request) async throws -> EmotionCategoryDTO {
     let dto = try req.content.decode(EmotionCategoryCreate.self)
-    let category = EmotionCategory(title: dto.title)
+    let category = EmotionCategory(title: dto.title, color: dto.color)
     try await category.create(on: req.db)
     return EmotionCategoryDTO(from: category)
 }

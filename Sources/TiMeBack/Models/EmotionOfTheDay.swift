@@ -20,23 +20,27 @@ final class EmotionOfTheDay: Model, Content, @unchecked Sendable {
     @Field(key: "date")
     var date: Date
     
-    @Field(key: "id_user")
-    var idUser: UUID
+    @Parent(key: "id_user")
+    var user: User
     
-    @Field(key: "id_emotion")
-    var idEmotion: UUID
+    @Parent(key: "id_emotion")
+    var emotion: Emotion
+    
+    //MARK: Relation
+    //est lié à User
+    //est lié à Emotion
     
     init() {}
     
     init(
         id: UUID? = nil,
         date: Date,
-        idUser: UUID,
-        idEmotion: UUID
+        userID: User.IDValue,
+        emotionID: Emotion.IDValue
     ) {
         self.id = id
         self.date = date
-        self.idUser = idUser
-        self.idEmotion = idEmotion
+        self.$user.id = userID
+        self.$emotion.id = emotionID
     }
 }

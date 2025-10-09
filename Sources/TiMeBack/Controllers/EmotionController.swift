@@ -11,6 +11,7 @@ struct EmotionController: RouteCollection {
     func boot(routes: any RoutesBuilder) throws {
         let emotion = routes.grouped("emotion")
         
+        emotion.get(use: getAll)
         emotion.get(":id", use: getById)
         emotion.post("create", use: createEmotion)
         emotion.put(":id", use: updateEmotion)
@@ -30,11 +31,18 @@ func getById(_ req: Request) async throws -> EmotionDTO {
     return EmotionDTO(from: emotion)
 }
 
+//MARK: - GET All Emotions
+@Sendable
+func getAll(_ req: Request) async throws -> [EmotionDTO] {
+    let emotions = try await Emotion.query(on: req.db).all()
+    return emotions.map { EmotionDTO(from: $0) }
+}
+
 //MARK: - CREATE Emotion
 @Sendable
     func createEmotion(_ req: Request) async throws -> Response {
         let dto = try req.content.decode(EmotionCreate.self)
-        let emotion = Emotion(title: dto.title, idCategoryEmotion: dto.idCategoryEmotion)
+        let emotion = Emotion(title: dto.title, categoryID: dto.categoryID)
         try await emotion.create(on: req.db)
         let responseDTO = EmotionDTO(from: emotion)
         let data = try JSONEncoder().encode(responseDTO)

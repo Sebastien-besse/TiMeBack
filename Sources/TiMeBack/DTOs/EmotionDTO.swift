@@ -10,21 +10,21 @@ import Vapor
 struct EmotionDTO: Content, Identifiable {
     let id: UUID?
     let title: String
-    let idCategoryEmotion: UUID?
+    let categoryID: UUID?
     
     init(from emotion: Emotion) {
         self.id = emotion.id
         self.title = emotion.title
-        self.idCategoryEmotion = emotion.idCategoryEmotion
+        self.categoryID = emotion.$category.id
     }
 }
 
 struct EmotionCreate: Content {
     let title: String
-    let idCategoryEmotion: UUID?
+    let categoryID: UUID
 }
 
 struct EmotionUpdate: Content {
       let title: String?
-      let idCategoryEmotion: UUID?
+      let categoryID: UUID?
   }
