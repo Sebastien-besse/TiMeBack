@@ -33,7 +33,7 @@ struct ChallengeController : RouteCollection{
         let dto = try req.content.decode(ChallengeCreateDTO.self)
         let challenge = Challenge(instruction: dto.instruction, messageMotivation: dto.messageMotivation)
         try await challenge.create(on: req.db)
-        return try ChallengeResponseDTO(from: challenge)
+        return ChallengeResponseDTO(from: challenge)
     }
     
 }
