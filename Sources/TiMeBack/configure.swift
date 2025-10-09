@@ -5,8 +5,10 @@ import Vapor
 import FluentSQL
 // configures your application
 public func configure(_ app: Application) async throws {
+    app.routes.defaultMaxBodySize = "10mb"
+
     // uncomment to serve files from /Public folder
-    // app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
+    app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
 
 app.databases.use(DatabaseConfigurationFactory.mysql(
         hostname: Environment.get("DATABASE_HOST") ?? "127.0.0.1",
