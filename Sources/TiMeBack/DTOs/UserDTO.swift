@@ -7,6 +7,20 @@
 
 import Vapor
 
+struct UserDTO: Content{
+    var id: UUID?
+    var firstName: String
+    var lastName: String
+    var userName: String
+    var email: String
+    var imageProfil: String?
+    
+    func toModel() -> User {
+        return User(userName: userName, firstName: firstName, lastName: lastName, email: email, password: "default", role: .user, imageProfil: "")
+    }
+    
+}
+
 struct CreateUserDTO: Content{
     var firstName: String
     var lastName: String
