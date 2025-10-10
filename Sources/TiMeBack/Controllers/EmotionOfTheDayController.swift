@@ -17,6 +17,7 @@ struct EmotionOfTheDayController: RouteCollection {
         emotionOfTheDay.post("create", use: createOrUpdateEmotionOfTheDay)
         emotionOfTheDay.put(":id", use: updateEmotionOfTheDay)
         emotionOfTheDay.delete(":id", use: deleteEmotionOfTheDay)
+        emotionOfTheDay.get("daily-suggestion", use: getDailySuggestion)
     }
     
     
@@ -39,6 +40,55 @@ struct EmotionOfTheDayController: RouteCollection {
         return emotionOfTheDay.map { EmotionOfTheDayDTO(from: $0) }
     }
     
+}
+
+//MARK: - GET Daily Suggestion (émotion positive aléatoire du jour)
+@Sendable
+func getDailySuggestion(_ req: Request) async throws -> EmotionDTO {
+    // 1. Définir les couleurs des catégories positives
+    let positiveColors = ["Orange", "Rose"]
+    
+    // 2. Récupérer les catégories positives (par couleur)
+    /// On utilise Fluent donc on récupère grâce à 'in' et 3 arguments : KeyPath(\.$color), Opérateur(equal) & Valeur(color)
+    let positiveCategories = try await EmotionCategory.query(on: req.db)
+        .group(.or) { group in
+            for color in positiveColors {
+                group.filter(\.$color, .equal, color)
+            }
+        }
+        .all()
+    
+    // 3. Récupérer les IDs des catégories
+    let categoryIDs = positiveCategories.compactMap { $0.id }
+    
+    guard !categoryIDs.isEmpty else {
+        throw Abort(.notFound, reason: "Aucune catégorie positive trouvée")
+    }
+    
+    // 4. Récupérer toutes les émotions de ces catégories
+    let emotions = try await Emotion.query(on: req.db)
+        .group(.or) { group in
+            for categoryID in categoryIDs {
+                group.filter(\.$category.$id, .equal, categoryID)
+            }
+        }
+        .all()
+    
+    guard !emotions.isEmpty else {
+        throw Abort(.notFound, reason: "Aucune émotion positive trouvée")
+    }
+    
+    // 5. Choisir une émotion basée sur la date du jour (seed)
+    let calendar = Calendar.current
+    let today = calendar.startOfDay(for: Date())
+    let daysSince1970 = Int(today.timeIntervalSince1970 / 86400)
+    
+    // Utiliser le nombre de jours comme seed
+    let index = daysSince1970 % emotions.count
+    let selectedEmotion = emotions[index]
+    
+    // 6. Retourner l'émotion choisie
+    return EmotionDTO(from: selectedEmotion)
 }
     
 //MARK: - CREATE or UPDATE EmotionOfTheDay
