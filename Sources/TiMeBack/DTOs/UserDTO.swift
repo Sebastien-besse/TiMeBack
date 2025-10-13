@@ -38,6 +38,7 @@ struct UserPublicDTO: Content{
     var email: String
     var streakNumber: Int
     var challengeNumber: Int
+    var imageProfil: String?
 }
 
 extension UserPublicDTO{
@@ -49,5 +50,6 @@ extension UserPublicDTO{
         self.email = user.email
         self.streakNumber = user.streakNumber
         self.challengeNumber = user.challengeNumber
+        self.imageProfil = user.imageProfil
     }
 }

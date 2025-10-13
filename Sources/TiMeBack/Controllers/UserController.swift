@@ -29,10 +29,10 @@ struct UserController: RouteCollection {
         // Route pour la connexion
         users.post("login", use: login)
         
-        // Route pour la connexion
         // Créer un groupe de routes qui nécessitent le middleware JWT
         let protectedRoutes = users.grouped(JWTMiddleware())
-        protectedRoutes.get("profile", use: profile) // Accès aux informations de profil
+        // Accès aux informations de profil
+        protectedRoutes.get("profile", use: profile)
         protectedRoutes.put("update", use: updateUser)
         protectedRoutes.delete("delete", use: deleteUser)
         users.group(":utilisateurID") { user in
