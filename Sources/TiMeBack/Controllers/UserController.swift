@@ -45,11 +45,33 @@ struct UserController: RouteCollection {
             // Décoder les données utilisateur à partir de la requête
             let userData = try req.content.decode (LoginRequest.self)
             // Rechercher l'utilisateur par email
-            guard let user = try await User.query(on: req.db)
-                .filter(\.$email == userData.email)
-                .first() else {
-                throw Abort(.unauthorized, reason: "L'utilisateur n'existe pas. ")
+            
+            guard userData.email != nil || userData.username != nil else {
+                throw Abort(.badRequest, reason: "Veuillez renseigner un email ou un nom d'utilisateur.")
             }
+
+            let user: User?
+            if let email = userData.email {
+                user = try await User.query(on: req.db)
+                    .filter(\.$email == email)
+                    .first()
+            } else if let username = userData.username {
+                user = try await User.query(on: req.db)
+                    .filter(\.$userName == username)
+                    .first()
+            } else {
+                // Par sécurité — ne devrait jamais arriver à cause du guard
+                throw Abort(.badRequest, reason: "Aucun identifiant fourni.")
+            }
+
+            guard let user = user else {
+                throw Abort(.unauthorized, reason: "Identifiant incorrect (utilisateur non trouvé).")
+            }
+//            guard let user = try await User.query(on: req.db)
+//                .filter(\.$email == userData.email ?? "")
+//                .first() else {
+//                throw Abort(.unauthorized, reason: "L'utilisateur n'existe pas. ")
+//            }
             // Vérification du mot de passe
             guard try Bcrypt.verify(userData.password, created: user.password) else {
                 throw Abort(.unauthorized, reason: "Mot de passe incorrect.")
