@@ -13,6 +13,7 @@ struct EmotionOfTheDayDTO: Content, Identifiable {
     let idUser: UUID
     let idEmotion: UUID
     
+    
     init(from emotionOfTheDay: EmotionOfTheDay) {
         self.id = emotionOfTheDay.id
         self.date = emotionOfTheDay.date
