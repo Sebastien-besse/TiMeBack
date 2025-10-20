@@ -30,6 +30,42 @@ app.databases.use(DatabaseConfigurationFactory.mysql(
         database: Environment.get("DATABASE_NAME") ?? "TiMeDatabase"
     ), as: .mysql)
 
+    let corsConfiguration = CORSMiddleware.Configuration(
+        allowedOrigin: .custom("http://127.0.0.1:5500"),
+        allowedMethods: [.GET, .PUT, .OPTIONS, .DELETE, .POST],
+        allowedHeaders: [.accept, .authorization, .contentType, .origin],
+        cacheExpiration: 120
+    )
+    
+    let corsMiddleware = CORSMiddleware(configuration: corsConfiguration)
+    
+    app.middleware.use(corsMiddleware)
+    
+    app.get("byType") { req -> Response in
+            let acceptHeader = req.headers["Accept"].first ?? ""
+            switch acceptHeader {
+
+            case "application/json":
+                let userJson = try UserPublicDTO(from: User())
+                return try Response(
+                    status: .ok,
+                    body: .init(data: JSONEncoder().encode(userJson)))
+
+            case "text/html":
+    //            let user = try UserPublicDTO(from: User())
+                let userHtml = "<p> Bonjour! </p>"
+                return Response(
+                    status: .ok,
+                    body: .init(string: userHtml))
+
+            default:
+                let defaultResponse = "Type non initialisé"
+                return Response(
+                    status: .ok,
+                    body: .init(string: defaultResponse))
+            }
+
+        }
     
 //    if let sql = app.db(.mysql) as? (any SQLDatabase) {
 //        sql.raw("SELECT 1").run().whenComplete { response in
