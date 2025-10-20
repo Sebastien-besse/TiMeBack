@@ -141,8 +141,14 @@ struct UserController: RouteCollection {
             
             //URL publique pour accéder à l’image
             // Si tu testes sur iPhone, remplace localhost par ton IP locale (ex : 192.168.x.x)
-            let publicURL = "http://127.0.0.1:8080/uploads/\(filename)"
             
+            
+            #if DEBUG
+            let publicURL = "http://127.0.0.1:8080/uploads/\(filename)"
+            #else
+            let publicURL = "http://10.80.59.190:8080/uploads/\(filename)"
+            #endif
+                                   
             return ImageUploadResponse(imageURL: publicURL)
         }
         

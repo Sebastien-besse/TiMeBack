@@ -17,7 +17,7 @@ final class Challenge: Model, Content, @unchecked Sendable {
     @ID(custom: "id_challenge")
     var id: UUID?
     
-    @Field(key: "intruction")
+    @Field(key: "instruction")
     var instruction : String
     
     @Field(key: "motivation_message")
