@@ -54,9 +54,14 @@ final class User: Model, Content, @unchecked Sendable{
     
     
     //MARK: Constructeur
-    init() {}
     
-    init(userName: String, firstName: String, lastName: String, email: String, password: String, streakNumber: Int = 0, role: Role, challengeNumber: Int = 0, imageProfil: String){
+    init(){
+        self.id = UUID()
+    }
+
+    
+    init(id: UUID? = nil, userName: String, firstName: String, lastName: String, email: String, password: String, streakNumber: Int = 0, role: Role, challengeNumber: Int = 0, imageProfil: String){
+        self.id = id ?? UUID()
         self.userName = userName
         self.firstName = firstName
         self.lastName = lastName
@@ -66,5 +71,9 @@ final class User: Model, Content, @unchecked Sendable{
         self.role = role
         self.challengeNumber = challengeNumber
         self.imageProfil = imageProfil
+    }
+    
+    func toDTO()->UserDTO{
+        return UserDTO(firstName: firstName, lastName: lastName, userName: userName, email: email)
     }
 }
