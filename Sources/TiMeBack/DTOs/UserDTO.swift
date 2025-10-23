@@ -13,10 +13,12 @@ struct UserDTO: Content{
     var lastName: String
     var userName: String
     var email: String
+    var streakNumber: Int
+    var challengeNumber: Int
     var imageProfil: String?
     
     func toModel() -> User {
-        return User(userName: userName, firstName: firstName, lastName: lastName, email: email, password: "default", role: .user, imageProfil: "")
+        return User(userName: userName, firstName: firstName, lastName: lastName, email: email, password: "default",streakNumber: streakNumber, role: .user, challengeNumber: challengeNumber, imageProfil: "")
     }
     
 }
@@ -39,6 +41,10 @@ struct UserPublicDTO: Content{
     var streakNumber: Int
     var challengeNumber: Int
     var imageProfil: String?
+}
+
+struct UserStreakDTO: Content{
+    var streakNumber: Int
 }
 
 extension UserPublicDTO{
