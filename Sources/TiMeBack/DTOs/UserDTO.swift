@@ -47,6 +47,10 @@ struct UserStreakDTO: Content{
     var streakNumber: Int
 }
 
+struct UserChallengeDTO: Content{
+    var challengeNumber: Int
+}
+
 extension UserPublicDTO{
     init(from user: User) throws {
         self.id = try user.requireID()
