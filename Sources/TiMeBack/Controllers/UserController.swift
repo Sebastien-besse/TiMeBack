@@ -34,6 +34,8 @@ struct UserController: RouteCollection {
         // Accès aux informations de profil
         protectedRoutes.get("profile", use: profile)
         protectedRoutes.put("update", use: updateUser)
+        protectedRoutes.patch("streak", use: patchUserStreak)
+        protectedRoutes.patch("challenge", use: patchUserChallenge)
         protectedRoutes.delete("delete", use: deleteUser)
         users.group(":utilisateurID") { user in
             user.get(use: getUtilisateurByID)
@@ -207,6 +209,40 @@ struct UserController: RouteCollection {
             try await user.save(on: req.db)
             
             // Retourne la version publique du user
+            return try UserPublicDTO(from: user)
+        }
+        
+        @Sendable
+        func patchUserStreak(req: Request) async throws -> UserPublicDTO{
+            let payload = try req.auth.require(UserPayload.self)
+            
+            // Récupérer l'utilisateur à mettre à jour (depuis la base)
+            guard let user = try await User.find(payload.id, on: req.db) else {
+                throw Abort(.notFound, reason: "Utilisateur introuvable.")
+            }
+            
+            let updateData = try req.content.decode(UserStreakDTO.self)
+            
+            user.streakNumber = updateData.streakNumber
+            
+            try await user.save(on: req.db)
+            return try UserPublicDTO(from: user)
+        }
+        
+        @Sendable
+        func patchUserChallenge(req: Request) async throws -> UserPublicDTO{
+            let payload = try req.auth.require(UserPayload.self)
+            
+            // Récupérer l'utilisateur à mettre à jour (depuis la base)
+            guard let user = try await User.find(payload.id, on: req.db) else {
+                throw Abort(.notFound, reason: "Utilisateur introuvable.")
+            }
+            
+            let updateData = try req.content.decode(UserChallengeDTO.self)
+            
+            user.challengeNumber = updateData.challengeNumber
+            
+            try await user.save(on: req.db)
             return try UserPublicDTO(from: user)
         }
         
