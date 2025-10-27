@@ -34,6 +34,7 @@ struct UserController: RouteCollection {
         // Accès aux informations de profil
         protectedRoutes.get("profile", use: profile)
         protectedRoutes.get("pages", use: pageByUserId)
+        protectedRoutes.get("notes", use: noteByUserId)
         protectedRoutes.put("update", use: updateUser)
         protectedRoutes.patch("streak", use: patchUserStreak)
         protectedRoutes.patch("challenge", use: patchUserChallenge)
@@ -205,7 +206,37 @@ struct UserController: RouteCollection {
                 return PageTotalDTO(count: 0)
             }
             
-            // Retourne un JSON du type { "count": X }
+            return pageTotal
+        }
+        
+        //MARK: - GET Number Note by id user
+        @Sendable
+        func noteByUserId(_ req: Request) async throws -> PageTotalDTO {
+            // Récupération du payload JWT
+            let payload = try req.auth.require(UserPayload.self)
+            
+            // Recherche de l'utilisateur par son id
+            guard let user = try await User.find(payload.id, on: req.db) else {
+                throw Abort(.notFound)
+            }
+            
+            // Vérifie si la DB est SQL
+            guard let sql = req.db as? (any SQLDatabase) else {
+                throw Abort(.internalServerError, reason: "La base de donnée n'est pas SQL")
+            }
+            
+            // Exécution de la requête SQL avec alias explicite
+            let result = try await sql.raw("""
+                SELECT COUNT(note) AS count
+                FROM pages
+                WHERE id_user = \(bind: user.id)
+            """).first(decoding: PageTotalDTO.self)
+            
+            // Vérifie qu'on a bien un résultat
+            guard let pageTotal = result else {
+                return PageTotalDTO(count: 0)
+            }
+            
             return pageTotal
         }
         
