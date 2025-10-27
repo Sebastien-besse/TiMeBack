@@ -33,6 +33,7 @@ struct UserController: RouteCollection {
         let protectedRoutes = users.grouped(JWTMiddleware())
         // Accès aux informations de profil
         protectedRoutes.get("profile", use: profile)
+        protectedRoutes.get("pages", use: pageByUserId)
         protectedRoutes.put("update", use: updateUser)
         protectedRoutes.patch("streak", use: patchUserStreak)
         protectedRoutes.patch("challenge", use: patchUserChallenge)
@@ -51,7 +52,7 @@ struct UserController: RouteCollection {
             guard userData.email != nil || userData.username != nil else {
                 throw Abort(.badRequest, reason: "Veuillez renseigner un email ou un nom d'utilisateur.")
             }
-
+            
             let user: User?
             if let email = userData.email {
                 user = try await User.query(on: req.db)
@@ -65,15 +66,15 @@ struct UserController: RouteCollection {
                 // Par sécurité — ne devrait jamais arriver à cause du guard
                 throw Abort(.badRequest, reason: "Aucun identifiant fourni.")
             }
-
+            
             guard let user = user else {
                 throw Abort(.unauthorized, reason: "Identifiant incorrect (utilisateur non trouvé).")
             }
-//            guard let user = try await User.query(on: req.db)
-//                .filter(\.$email == userData.email ?? "")
-//                .first() else {
-//                throw Abort(.unauthorized, reason: "L'utilisateur n'existe pas. ")
-//            }
+            //            guard let user = try await User.query(on: req.db)
+            //                .filter(\.$email == userData.email ?? "")
+            //                .first() else {
+            //                throw Abort(.unauthorized, reason: "L'utilisateur n'existe pas. ")
+            //            }
             // Vérification du mot de passe
             guard try Bcrypt.verify(userData.password, created: user.password) else {
                 throw Abort(.unauthorized, reason: "Mot de passe incorrect.")
@@ -117,13 +118,13 @@ struct UserController: RouteCollection {
             return try UserPublicDTO(from: user)
         }
         
-//        @Sendable
-//        func create(req: Request) async throws -> UserDTO {
-//            let user = try req.content.decode (User.self)
-//            user.password = try Bcrypt.hash(user.password) // Hachage du mot de passe
-//            try await user.save(on: req.db)
-//            return user.toDTO()
-//        }
+        //        @Sendable
+        //        func create(req: Request) async throws -> UserDTO {
+        //            let user = try req.content.decode (User.self)
+        //            user.password = try Bcrypt.hash(user.password) // Hachage du mot de passe
+        //            try await user.save(on: req.db)
+        //            return user.toDTO()
+        //        }
         
         @Sendable
         // Upload l’image du profil
@@ -145,12 +146,12 @@ struct UserController: RouteCollection {
             // Si tu testes sur iPhone, remplace localhost par ton IP locale (ex : 192.168.x.x)
             
             
-            #if DEBUG
+#if DEBUG
             let publicURL = "http://127.0.0.1:8080/uploads/\(filename)"
-            #else
+#else
             let publicURL = "http://10.80.59.190:8080/uploads/\(filename)"
-            #endif
-                                   
+#endif
+            
             return ImageUploadResponse(imageURL: publicURL)
         }
         
@@ -176,6 +177,39 @@ struct UserController: RouteCollection {
             return try UserPublicDTO(from: user)
         }
         
+        //MARK: - GET Number Page by id user
+        @Sendable
+        func pageByUserId(_ req: Request) async throws -> PageTotalDTO {
+            // Récupération du payload JWT
+            let payload = try req.auth.require(UserPayload.self)
+            
+            // Recherche de l'utilisateur par son id
+            guard let user = try await User.find(payload.id, on: req.db) else {
+                throw Abort(.notFound)
+            }
+            
+            // Vérifie si la DB est SQL
+            guard let sql = req.db as? (any SQLDatabase) else {
+                throw Abort(.internalServerError, reason: "La base de donnée n'est pas SQL")
+            }
+            
+            // Exécution de la requête SQL avec alias explicite
+            let result = try await sql.raw("""
+                SELECT COUNT(*) AS count
+                FROM pages
+                WHERE id_user = \(bind: user.id)
+            """).first(decoding: PageTotalDTO.self)
+            
+            // Vérifie qu'on a bien un résultat
+            guard let pageTotal = result else {
+                return PageTotalDTO(count: 0)
+            }
+            
+            // Retourne un JSON du type { "count": X }
+            return pageTotal
+        }
+        
+        
         @Sendable
         func updateUser(_ req: Request) async throws -> UserPublicDTO {
             // Récupérer le payload JWT → permet de vérifier que le user est bien authentifié
@@ -199,12 +233,12 @@ struct UserController: RouteCollection {
             if !updateData.password.isEmpty {
                 user.password = try Bcrypt.hash(updateData.password)
             }
-
+            
             // Si une nouvelle image est fournie
             if let imageProfil = updateData.imageProfil {
                 user.imageProfil = imageProfil
             }
-
+            
             // Enregistre les changements
             try await user.save(on: req.db)
             
@@ -262,8 +296,8 @@ struct UserController: RouteCollection {
             
             return .noContent // 204 No Content
         }
-
-
+        
+        
     }
     
 }
