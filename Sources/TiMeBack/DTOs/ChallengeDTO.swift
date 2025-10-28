@@ -2,7 +2,7 @@
 //  ChallengeDTO.swift
 //  TiMeBack
 //
-//  Created by Apprenant125 on 29/09/2025.
+//  Created by Carla on 29/09/2025.
 //
 
 import Vapor
