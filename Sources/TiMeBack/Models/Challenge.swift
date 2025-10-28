@@ -9,6 +9,8 @@ import Fluent
 import Vapor
 
 final class Challenge: Model, Content, @unchecked Sendable {
+
+    
     
     //MARK: lien à la table
     static let schema: String = "challenges"
@@ -26,15 +28,18 @@ final class Challenge: Model, Content, @unchecked Sendable {
     //MARK: Relation
     //est lié à exercices
     
+    //est lié à Challenge Of The Day
+    @OptionalChild(for: \.$idChallenge)
+    var idChallenge : ChallengeOfTheDay?
     
 
     //MARK: Constructeurs
     init() { }
     
-    init(id: UUID? = nil, instruction: String, messageMotivation: String) {
+    init(id: UUID? = nil, instruction: String, messageMotivation: String, idChallenge: ChallengeOfTheDay? = nil) {
         self.id = id
         self.instruction = instruction
         self.messageMotivation = messageMotivation
+        self.idChallenge = idChallenge
     }
-    
 }

@@ -8,7 +8,7 @@
 import Fluent
 import Vapor
 
-final class Emotion: Model, Content, @unchecked Sendable {
+final class Emotion: Model, Content, @unchecked Sendable, Codable{
     
     //MARK: lien à la table
     static let schema = "emotions"
