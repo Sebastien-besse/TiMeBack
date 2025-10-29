@@ -206,7 +206,6 @@ struct UserController: RouteCollection {
             guard let pageTotal = result else {
                 return PageTotalDTO(count: 0)
             }
-            
             return pageTotal
         }
         
@@ -259,7 +258,7 @@ struct UserController: RouteCollection {
             
             // Exécution de la requête SQL avec alias explicite
             let result = try await sql.raw("""
-                SELECT AVG(motivation) AS count
+                SELECT COALESCE(ROUND(AVG(motivation)), 0) AS count
                 FROM motivations
                 WHERE id_user = \(bind: user.id)
             """).first(decoding: PageTotalDTO.self)
