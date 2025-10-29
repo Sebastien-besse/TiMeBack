@@ -78,12 +78,12 @@ func getDailySuggestion(_ req: Request) async throws -> EmotionDTO {
         throw Abort(.notFound, reason: "Aucune émotion positive trouvée")
     }
     
-    // 5. Choisir une émotion basée sur la date du jour (seed)
+    // 5. Choisir une émotion basée sur la date du jour
     let calendar = Calendar.current
     let today = calendar.startOfDay(for: Date())
     let daysSince1970 = Int(today.timeIntervalSince1970 / 86400)
     
-    // Utiliser le nombre de jours comme seed
+    // Utiliser le nombre de jours comme point de départ
     let index = daysSince1970 % emotions.count
     let selectedEmotion = emotions[index]
     
