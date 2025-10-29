@@ -267,7 +267,7 @@ struct UserController: RouteCollection {
             guard let pageTotal = result else {
                 return PageTotalDTO(count: 0)
             }
-            
+            // retourne le model avec le nombres de pages
             return pageTotal
         }
         
