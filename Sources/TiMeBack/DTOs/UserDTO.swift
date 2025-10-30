@@ -14,6 +14,7 @@ struct UserDTO: Content{
     var userName: String
     var email: String
     var imageProfil: String?
+    var streakNumber: Int
     
     func toModel() -> User {
         return User(userName: userName, firstName: firstName, lastName: lastName, email: email, password: "default", role: .user, imageProfil: "")

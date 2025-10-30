@@ -12,7 +12,7 @@ final class ChallengeOfTheDay : Model, Content, @unchecked Sendable, Decodable{
     
     static let schema: String = "challengeOfTheDay"
     
-    @ID(custom: "id_chellengeOfTheDay")
+    @ID(custom: "id_challengeOfTheDay")
     var id: UUID?
     
     @Field(key: "date")

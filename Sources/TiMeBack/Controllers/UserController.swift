@@ -35,6 +35,7 @@ struct UserController: RouteCollection {
         protectedRoutes.get("profile", use: profile)
         protectedRoutes.put("update", use: updateUser)
         protectedRoutes.delete("delete", use: deleteUser)
+        protectedRoutes.post("streak/increment", use: incrementStreak)
         users.group(":utilisateurID") { user in
             user.get(use: getUtilisateurByID)
         }
@@ -226,7 +227,22 @@ struct UserController: RouteCollection {
             
             return .noContent // 204 No Content
         }
-
+        
+        // Fonction pour le calcul de la streak
+        @Sendable
+        func incrementStreak(req: Request) async throws -> UserPublicDTO {
+            let payload = try req.auth.require(UserPayload.self)
+            
+            guard let user = try await User.find(payload.id, on: req.db) else {
+                throw Abort(.notFound, reason: "Utilisateur introuvable")
+            }
+            user.streakNumber += 1
+            try await user.save(on: req.db)
+            
+            print("Streak incrémentée: \(user.streakNumber)")
+            
+            return try UserPublicDTO(from: user)
+        }
 
     }
     
