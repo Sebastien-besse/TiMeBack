@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  User.swift
 //  TiMeBack
 //
 //  Created by Sebastien Besse on 25/09/2025.
@@ -50,7 +50,6 @@ final class User: Model, Content, @unchecked Sendable{
     var imageProfil: String?
     
     //MARK: Relation
-    
     
     
     //MARK: Constructeur
