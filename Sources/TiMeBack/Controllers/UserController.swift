@@ -36,6 +36,7 @@ struct UserController: RouteCollection {
         protectedRoutes.get("pages", use: pageByUserId)
         protectedRoutes.get("notes", use: noteByUserId)
         protectedRoutes.get("average", use: averageMotivationByUserId)
+        protectedRoutes.get("emotionStats", use: getEmotionStats)
         protectedRoutes.put("update", use: updateUser)
         protectedRoutes.patch("streak", use: patchUserStreak)
         protectedRoutes.patch("challenge", use: patchUserChallenge)
@@ -269,6 +270,69 @@ struct UserController: RouteCollection {
             }
             // retourne le model avec le nombres de pages
             return pageTotal
+        }
+        
+        //MARK: GET Emotion stats by id user
+        @Sendable
+        func getEmotionStats(_ req: Request) async throws -> [EmotionCategoryStatsDTO] {
+            // 🔐 Récupération du payload JWT
+            let payload = try req.auth.require(UserPayload.self)
+            
+            // 🧍‍♂️ Recherche de l'utilisateur
+            guard let user = try await User.find(payload.id, on: req.db) else {
+                throw Abort(.notFound, reason: "Utilisateur introuvable.")
+            }
+            
+            // 📅 Paramètre "period"
+            let period = (try? req.query.get(String.self, at: "period")) ?? "month"
+            
+            let now = Date()
+            let calendar = Calendar.current
+            let startDate: Date
+            
+            switch period.lowercased() {
+            case "week":
+                startDate = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: now))!
+            case "month":
+                startDate = calendar.date(from: calendar.dateComponents([.year, .month], from: now))!
+            case "year":
+                startDate = calendar.date(from: calendar.dateComponents([.year], from: now))!
+            default:
+                throw Abort(.badRequest, reason: "Invalid period. Use week, month or year.")
+            }
+            
+            // 📊 Récupération des émotions + catégorie associée
+            let results = try await EmotionOfTheDay.query(on: req.db)
+                .filter(\.$user.$id == user.requireID())
+                .filter(\.$date >= startDate)
+                .with(\.$emotion) { $0.with(\.$category) } // charge la catégorie liée
+                .all()
+            
+            // 📈 Regrouper par catégorie
+            var categoryCount: [UUID: (title: String, color: String, count: Int)] = [:]
+            
+            for item in results {
+                // ✅ accès à la catégorie chargée via "with"
+                let category = item.emotion.category
+                guard let categoryId = category.id else { continue }
+                
+                if var existing = categoryCount[categoryId] {
+                    existing.count += 1
+                    categoryCount[categoryId] = existing
+                } else {
+                    categoryCount[categoryId] = (category.title, category.color, 1)
+                }
+            }
+            
+            // 🎯 Conversion en DTO
+            return categoryCount.map { (id, value) in
+                EmotionCategoryStatsDTO(
+                    categoryId: id,
+                    categoryTitle: value.title,
+                    color: value.color,
+                    count: value.count
+                )
+            }
         }
         
         @Sendable
