@@ -16,9 +16,14 @@ struct ChallengeController : RouteCollection{
         challenge.get(":id", use: getById)
         challenge.get("indexChallenge", use: index)
         challenge.get("randomChallenge", use: randomChallenge)
-
+        
         
         challenge.post("create", use: createChallenge)
+        
+        //les endpoints doivent soit avoir un params comme ici ↙️ soit un titre reconnaissable ↖️ pour fonctionner correctement
+        challenge.put(":challengeID", use: updateChallenge)
+        
+        challenge.delete(":challengeID", use: deleteChallenge)
         
     }
     
@@ -51,6 +56,46 @@ struct ChallengeController : RouteCollection{
         let challenge = Challenge(instruction: dto.instruction, messageMotivation: dto.messageMotivation)
         try await challenge.create(on: req.db)
         return ChallengeResponseDTO(from: challenge)
+    }
+    
+    //MARK: - Update Challenge
+    
+    @Sendable
+    func updateChallenge(_ req: Request) async throws -> ChallengeResponseDTO {
+        guard let challengeIDString = req.parameters.get("challengeID"),
+              let challengeID = UUID(uuidString: challengeIDString) else {
+            throw Abort(.badRequest, reason: "Invalid challenge ID")
+        }
+        
+        let updatedChallenge = try req.content.decode(Challenge.self)
+        
+        guard let challenge = try await Challenge.find(challengeID, on: req.db) else {
+            throw Abort(.notFound, reason: "Challenge not found")
+        }
+        
+        challenge.instruction = updatedChallenge.instruction
+        challenge.messageMotivation = updatedChallenge.messageMotivation
+        
+        try await challenge.save(on: req.db)
+        return ChallengeResponseDTO(from: challenge)
+    }
+    
+    //MARK: - Delete Challenge
+    
+    @Sendable
+    func deleteChallenge(_ req: Request) async throws -> HTTPStatus {
+        guard let challengeIDSting = req.parameters.get("challengeID"),
+              let challengeID = UUID(uuidString: challengeIDSting) else {
+            throw Abort(.notFound, reason: "invalid challenge Id")
+        }
+        
+        guard let challenge = try await Challenge.find(challengeID, on: req.db) else {
+            throw Abort(.notFound, reason: "no challenge has been found")
+        }
+        
+        try await challenge.delete(on: req.db)
+        return .noContent
+        
     }
     
 }

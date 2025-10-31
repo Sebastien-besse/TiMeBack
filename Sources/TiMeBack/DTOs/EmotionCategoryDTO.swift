@@ -28,3 +28,11 @@ struct EmotionCategoryUpdate: Content {
     let title: String
     let color: String
 }
+
+
+struct EmotionCategoryStatsDTO: Content {
+    var categoryId: UUID
+    var categoryTitle: String
+    var color: String
+    var count: Int
+}

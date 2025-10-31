@@ -13,6 +13,7 @@ struct EmotionController: RouteCollection {
         
         emotion.get(use: getAll)
         emotion.get(":id", use: getById)
+        emotion.get("random", use: getRandomEmotions)
         emotion.post("create", use: createEmotion)
         emotion.put(":id", use: updateEmotion)
         emotion.delete(":id", use: deleteEmotion)
@@ -38,16 +39,49 @@ func getAll(_ req: Request) async throws -> [EmotionDTO] {
     return emotions.map { EmotionDTO(from: $0) }
 }
 
+//MARK: - GET Emotion Random
+
+@Sendable
+func getRandomEmotions(_ req: Request) async throws -> [EmotionDTO] {
+    //récupère les catégories des émotions
+    let emotionCategory = try await EmotionCategory.query(on: req.db).all()
+    
+    //récupère toutes les emotions
+    let emotions = try await Emotion.query(on: req.db).all()
+    
+    //ici on crée un tableau qui contiendra une émotionRandom de chaque catégorie d'émotion
+    var randomEmotions : [EmotionDTO] = []
+    
+    //on boucle sur les catégories d'émotions récupérée
+    for category in emotionCategory {
+        
+        // je filtre les émotions récupérées en fonction de la catégorie qui boucle
+        let emotionFiltered = emotions.filter{ $0.$category.id == category.id }
+        
+        // je choisi une émotion en random
+        guard let randomEmotion = emotionFiltered.randomElement() else {
+            throw Abort(.notFound)
+        }
+        
+        //j'append l'émotion choisie dans mon tableau d'émotion
+        randomEmotions.append(EmotionDTO(from: randomEmotion))
+ 
+    }
+    
+    return randomEmotions
+    
+}
+
 //MARK: - CREATE Emotion
 @Sendable
-    func createEmotion(_ req: Request) async throws -> Response {
-        let dto = try req.content.decode(EmotionCreate.self)
-        let emotion = Emotion(title: dto.title, categoryID: dto.categoryID)
-        try await emotion.create(on: req.db)
-        let responseDTO = EmotionDTO(from: emotion)
-        let data = try JSONEncoder().encode(responseDTO)
-        return Response(status: .created, headers: ["Content-Type": "application/json"], body: .init(data: data))
-    }
+func createEmotion(_ req: Request) async throws -> Response {
+    let dto = try req.content.decode(EmotionCreate.self)
+    let emotion = Emotion(title: dto.title, categoryID: dto.categoryID)
+    try await emotion.create(on: req.db)
+    let responseDTO = EmotionDTO(from: emotion)
+    let data = try JSONEncoder().encode(responseDTO)
+    return Response(status: .created, headers: ["Content-Type": "application/json"], body: .init(data: data))
+}
 
 //MARK: - UPDATE Emotion
 @Sendable

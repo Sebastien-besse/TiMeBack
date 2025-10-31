@@ -21,7 +21,9 @@ struct PageDTO: Content, Identifiable {
         self.idUser = page.$user.id
     }
 }
-
+struct PageTotalDTO: Content{
+    let count: Int
+}
 struct PageCreate: Content {
     let note: String
     let idUser: UUID
