@@ -20,4 +20,6 @@ app.get { req async in
     try app.register(collection: MotivationController())
     try app.register(collection: PageController())
     try app.register(collection: DayController())
+    try app.register(collection: StatementController())
+    try app.register(collection: ExerciseController())
 }
