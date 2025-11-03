@@ -11,12 +11,13 @@ import Vapor
 struct PageController: RouteCollection {
     func boot(routes: any RoutesBuilder) throws {
         let page = routes.grouped("page")
+        let protectedRoutes = page.grouped(JWTMiddleware())
         
-        page.get(use: getAll)
-        page.get(":id", use: getById)
-        page.post("create", use: create)
-        page.put(":id", use: update)
-        page.delete(":id", use: delete)
+        protectedRoutes.get(use: getAll)
+        protectedRoutes.get(":id", use: getById)
+        protectedRoutes.post("create", use: create)
+        protectedRoutes.put(":id", use: update)
+        protectedRoutes.delete(":id", use: delete)
     }
     
     //MARK: - GET Page by id
