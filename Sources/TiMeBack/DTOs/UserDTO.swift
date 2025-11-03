@@ -46,6 +46,10 @@ struct UserPublicDTO: Content{
 struct UserStreakDTO: Content{
     var streakNumber: Int
 }
+struct UserStreakResponseDTO: Content {
+    let streakNumber: Int
+}
+
 
 struct UserChallengeDTO: Content{
     var challengeNumber: Int

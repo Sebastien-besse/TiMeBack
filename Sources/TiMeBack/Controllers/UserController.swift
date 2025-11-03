@@ -367,32 +367,31 @@ struct UserController: RouteCollection {
             // Enregistre les changements
             try await user.save(on: req.db)
             
-            // Retourne la version publique du user
+            // Retourne la version mis à jour du user
             return try UserPublicDTO(from: user)
         }
         
         @Sendable
-        func patchUserStreak(req: Request) async throws -> UserPublicDTO{
+        func patchUserStreak(req: Request) async throws -> UserStreakResponseDTO {
             let payload = try req.auth.require(UserPayload.self)
             
-            // Récupérer l'utilisateur à mettre à jour (depuis la base)
             guard let user = try await User.find(payload.id, on: req.db) else {
                 throw Abort(.notFound, reason: "Utilisateur introuvable.")
             }
-            
+
             let updateData = try req.content.decode(UserStreakDTO.self)
-            
             user.streakNumber = updateData.streakNumber
-            
             try await user.save(on: req.db)
-            return try UserPublicDTO(from: user)
+
+            return UserStreakResponseDTO(streakNumber: user.streakNumber)
         }
+
         
         @Sendable
         func patchUserChallenge(req: Request) async throws -> UserPublicDTO{
             let payload = try req.auth.require(UserPayload.self)
             
-            // Récupérer l'utilisateur à mettre à jour (depuis la base)
+            // Récupérer l'utilisateur à mettre à jour depuis la base de données
             guard let user = try await User.find(payload.id, on: req.db) else {
                 throw Abort(.notFound, reason: "Utilisateur introuvable.")
             }
@@ -419,7 +418,7 @@ struct UserController: RouteCollection {
             //Supprime l’utilisateur
             try await user.delete(on: req.db)
             
-            return .noContent // 204 No Content
+            return .noContent
         }
         
         
