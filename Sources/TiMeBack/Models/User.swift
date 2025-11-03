@@ -51,9 +51,9 @@ final class User: Model, Content, @unchecked Sendable{
     
     //MARK: Relation
     
-    // est relié à Challenge Of The Day
-    @OptionalChild(for: \.$idUser)
-    var idUser : ChallengeOfTheDay?
+//    // est relié à Challenge Of The Day
+//    @OptionalChild(for: \.$idUser)
+//    var idUser : ChallengeOfTheDay?
 
     
     //MARK: Constructeur
@@ -74,7 +74,7 @@ final class User: Model, Content, @unchecked Sendable{
         self.role = role
         self.challengeNumber = challengeNumber
         self.imageProfil = imageProfil
-        self.idUser = idUser
+//        self.idUser = idUser
     }
     
     func toDTO()->UserDTO{
