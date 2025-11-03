@@ -338,26 +338,24 @@ struct UserController: RouteCollection {
         
         @Sendable
         func updateUser(_ req: Request) async throws -> UserPublicDTO {
-            // Récupérer le payload JWT → permet de vérifier que le user est bien authentifié
+            // Récupérer le payload JWT
             let payload = try req.auth.require(UserPayload.self)
             
-            // Récupérer l'utilisateur à mettre à jour (depuis la base)
+            // Récupérer l'utilisateur depuis la base
             guard let user = try await User.find(payload.id, on: req.db) else {
                 throw Abort(.notFound, reason: "Utilisateur introuvable.")
             }
             
-            // Décoder les nouvelles données envoyées par le client
-            let updateData = try req.content.decode(CreateUserDTO.self)
+            //  Utiliser UpdateUserDTO au lieu de CreateUserDTO
+            let updateData = try req.content.decode(UpdateUserDTO.self)
             
-            // Met à jour les champs
-            user.firstName = updateData.firstName
-            user.lastName = updateData.lastName
-            user.userName = updateData.userName
-            user.email = updateData.email
+            //  Mise à jour conditionnelle (seulement les champs fournis)
+            if let userName = updateData.userName {
+                user.userName = userName
+            }
             
-            // Si un mot de passe est envoyé → on le rehash
-            if !updateData.password.isEmpty {
-                user.password = try Bcrypt.hash(updateData.password)
+            if let firstName = updateData.firstName {
+                user.firstName = firstName
             }
             
             // Si une nouvelle image est fournie
@@ -402,9 +400,26 @@ struct UserController: RouteCollection {
             user.challengeNumber = updateData.challengeNumber
             
             try await user.save(on: req.db)
+            if let lastName = updateData.lastName {
+                user.lastName = lastName
+            }
+            
+            if let email = updateData.email {
+                user.email = email
+            }
+            
+            // Si un mot de passe est envoyé, le hasher
+            if let password = updateData.password, !password.isEmpty {
+                user.password = try Bcrypt.hash(password)
+            }
+            
+            // Enregistrer les changements
+            try await user.save(on: req.db)
+            
+            // Retourner l'utilisateur mis à jour
             return try UserPublicDTO(from: user)
         }
-        
+
         
         @Sendable
         func deleteUser(_ req: Request) async throws -> HTTPStatus {
