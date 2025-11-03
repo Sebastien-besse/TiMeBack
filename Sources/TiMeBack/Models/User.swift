@@ -52,8 +52,8 @@ final class User: Model, Content, @unchecked Sendable{
     //MARK: Relation
     
     // est relié à Challenge Of The Day
-    @OptionalChild(for: \.$idUser)
-    var idUser : ChallengeOfTheDay?
+//    @OptionalChild(for: \.$idUser)
+//    var idUser : ChallengeOfTheDay?
 
     
     //MARK: Constructeur
@@ -63,7 +63,7 @@ final class User: Model, Content, @unchecked Sendable{
     }
 
     
-    init(id: UUID? = nil, userName: String, firstName: String, lastName: String, email: String, password: String, streakNumber: Int = 0, role: Role, challengeNumber: Int = 0, imageProfil: String, idUser : ChallengeOfTheDay? = nil){
+    init(id: UUID? = nil, userName: String, firstName: String, lastName: String, email: String, password: String, streakNumber: Int = 0, role: Role, challengeNumber: Int = 0, imageProfil: String){
         self.id = id ?? UUID()
         self.userName = userName
         self.firstName = firstName
@@ -74,7 +74,6 @@ final class User: Model, Content, @unchecked Sendable{
         self.role = role
         self.challengeNumber = challengeNumber
         self.imageProfil = imageProfil
-        self.idUser = idUser
     }
     
     func toDTO()->UserDTO{

@@ -13,7 +13,6 @@ struct ChallengeOfTheDayController : RouteCollection {
         let challengeOfTheDay = routes.grouped("challengeOfTheDay")
         let protectedRoutes = challengeOfTheDay.grouped(JWTMiddleware())
         
-        protectedRoutes.post("randomChallengeOTD", use: postRandomChallengeOfTheDay)
         protectedRoutes.get("get_challenge_of_the_day", use: getChallengeOfTheDay)
         protectedRoutes.delete("deleteForToday", use: deleteChallengeOfTheDay)
     }
