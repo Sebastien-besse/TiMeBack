@@ -51,7 +51,6 @@ final class User: Model, Content, @unchecked Sendable{
     
     //MARK: Relation
     
-    // est relié à Challenge Of The Day
 //    @OptionalChild(for: \.$idUser)
 //    var idUser : ChallengeOfTheDay?
 

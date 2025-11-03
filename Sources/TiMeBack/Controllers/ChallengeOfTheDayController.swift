@@ -9,12 +9,15 @@ import Vapor
 
 struct ChallengeOfTheDayController : RouteCollection {
     func boot(routes: any Vapor.RoutesBuilder) throws {
-        
         let challengeOfTheDay = routes.grouped("challengeOfTheDay")
         let protectedRoutes = challengeOfTheDay.grouped(JWTMiddleware())
         
+        protectedRoutes.post(":userID", use: createRandomChallengeOfTheDay)
         protectedRoutes.get("get_challenge_of_the_day", use: getChallengeOfTheDay)
+        protectedRoutes.get("index", use: indexChallengeOfThDay)        
         protectedRoutes.delete("deleteForToday", use: deleteChallengeOfTheDay)
+        protectedRoutes.delete(":challengeID", use: deleteChallengeOfTheDay)
+        protectedRoutes.delete("deleteAll", use: deleteAllChallengeOfTheDay)
     }
     
     //MARK: - Post ChallengeOfTheDay.random -> ajout d'un challenge aléatoire en tant que challenge du jour
