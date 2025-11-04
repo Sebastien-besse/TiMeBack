@@ -17,7 +17,7 @@ public func configure(_ app: Application) async throws {
 
     // Ajout de CORS
     let corsConfiguration = CORSMiddleware.Configuration(
-        allowedOrigin: .all, // ou .originBased pour restreindre
+        allowedOrigin: .all,
         allowedMethods: [.GET, .POST, .PUT, .PATCH, .DELETE, .OPTIONS],
         allowedHeaders: [
             .accept,

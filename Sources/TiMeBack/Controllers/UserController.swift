@@ -24,7 +24,6 @@ struct UserController: RouteCollection {
         
         // Crée un nouvel utilisateur utilisateurs.post("login", use: login)
         users.post(use: create)
-        users.post("upload", use: uploadImage)
         
         // Route pour la connexion
         users.post("login", use: login)
@@ -33,6 +32,7 @@ struct UserController: RouteCollection {
         let protectedRoutes = users.grouped(JWTMiddleware())
         // Accès aux informations de profil
         protectedRoutes.get("profile", use: profile)
+        protectedRoutes.post("upload", use: uploadImage)
         protectedRoutes.get("pages", use: pageByUserId)
         protectedRoutes.get("notes", use: noteByUserId)
         protectedRoutes.get("average", use: averageMotivationByUserId)
@@ -132,31 +132,44 @@ struct UserController: RouteCollection {
         
         @Sendable
         // Upload l’image du profil
-        func uploadImage(_ req: Request) async throws -> ImageUploadResponse {
-            struct UploadData: Content { var file: File }
+        func uploadImage(_ req: Request) async throws -> UserPublicDTO {
             
+            // Utilisation du JWT
+            let payload = try req.auth.require(UserPayload.self)
+            
+            guard let user = try await User.find(payload.id, on: req.db) else {
+                throw Abort(.notFound, reason: "Utilisateur introuvable.")
+            }
+            
+            struct UploadData: Content { var file: File }
             let upload = try req.content.decode(UploadData.self)
+            
             let filename = UUID().uuidString + ".jpg"
             
             let uploadsDir = req.application.directory.publicDirectory + "uploads/"
             try FileManager.default.createDirectory(atPath: uploadsDir, withIntermediateDirectories: true)
             
-            
             //Dossier où l’image sera stockée
             let savePath = uploadsDir + filename
+            
+            // Créé le dossier si nécessaire
+            if !FileManager.default.fileExists(atPath: uploadsDir) {
+                try FileManager.default.createDirectory(
+                    atPath: uploadsDir,
+                    withIntermediateDirectories: true,
+                    attributes: nil
+                )
+                print("✅ Dossier uploads/ créé")
+            }
+            
+            // Ecrit le fichier image sur le disque
             try await req.fileio.writeFile(upload.file.data, at: savePath)
             
-            //URL publique pour accéder à l’image
-            // Si tu testes sur iPhone, remplace localhost par ton IP locale (ex : 192.168.x.x)
+            // Met à jour l'utilisateur avec l'url
+            user.imageProfil = "/uploads/\(filename)"
+            try await user.save(on: req.db)
             
-            
-#if DEBUG
-            let publicURL = "http://127.0.0.1:8080/uploads/\(filename)"
-#else
-            let publicURL = "http://10.80.59.190:8080/uploads/\(filename)"
-#endif
-            
-            return ImageUploadResponse(imageURL: publicURL)
+            return try UserPublicDTO(from: user)
         }
         
         @Sendable
@@ -358,10 +371,11 @@ struct UserController: RouteCollection {
             // Si un mot de passe est envoyé → on le rehash
             if !updateData.password.isEmpty {
                 user.password = try Bcrypt.hash(updateData.password)
+                print("✅ [Update] Mot de passe mis à jour et hashé")
             }
             
             // Si une nouvelle image est fournie
-            if let imageProfil = updateData.imageProfil {
+            if let imageProfil = updateData.imageProfil, !imageProfil.isEmpty {
                 user.imageProfil = imageProfil
             }
             

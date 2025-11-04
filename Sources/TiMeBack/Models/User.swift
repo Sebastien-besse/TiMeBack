@@ -76,6 +76,6 @@ final class User: Model, Content, @unchecked Sendable{
     }
     
     func toDTO()->UserDTO{
-        return UserDTO(firstName: firstName, lastName: lastName, userName: userName, email: email, streakNumber: streakNumber, challengeNumber: challengeNumber)
+        return UserDTO(firstName: firstName, lastName: lastName, userName: userName, email: email, streakNumber: streakNumber, challengeNumber: challengeNumber, imageProfil: imageProfil)
     }
 }
