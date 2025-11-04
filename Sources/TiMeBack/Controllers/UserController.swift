@@ -351,10 +351,10 @@ struct UserController: RouteCollection {
         
         @Sendable
         func updateUser(_ req: Request) async throws -> UserPublicDTO {
-            // Récupérer le payload JWT → permet de vérifier que le user est bien authentifié
+            // Récupérer le payload JWT
             let payload = try req.auth.require(UserPayload.self)
             
-            // Récupérer l'utilisateur à mettre à jour (depuis la base)
+            // Récupérer l'utilisateur depuis la base
             guard let user = try await User.find(payload.id, on: req.db) else {
                 throw Abort(.notFound, reason: "Utilisateur introuvable.")
             }
@@ -416,9 +416,26 @@ struct UserController: RouteCollection {
             user.challengeNumber = updateData.challengeNumber
             
             try await user.save(on: req.db)
+            if let lastName = updateData.lastName {
+                user.lastName = lastName
+            }
+            
+            if let email = updateData.email {
+                user.email = email
+            }
+            
+            // Si un mot de passe est envoyé, le hasher
+            if let password = updateData.password, !password.isEmpty {
+                user.password = try Bcrypt.hash(password)
+            }
+            
+            // Enregistrer les changements
+            try await user.save(on: req.db)
+            
+            // Retourner l'utilisateur mis à jour
             return try UserPublicDTO(from: user)
         }
-        
+
         
         @Sendable
         func deleteUser(_ req: Request) async throws -> HTTPStatus {

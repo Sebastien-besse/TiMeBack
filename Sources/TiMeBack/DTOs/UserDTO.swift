@@ -53,17 +53,24 @@ struct UserStreakResponseDTO: Content {
 
 struct UserChallengeDTO: Content{
     var challengeNumber: Int
-}
-
-extension UserPublicDTO{
-    init(from user: User) throws {
-        self.id = try user.requireID()
-        self.firstName = user.firstName
-        self.lastName = user.lastName
-        self.userName = user.userName
-        self.email = user.email
-        self.streakNumber = user.streakNumber
-        self.challengeNumber = user.challengeNumber
-        self.imageProfil = user.imageProfil
+    struct UpdateUserDTO: Content {
+        var userName: String?
+        var email: String?
+        var password: String?
+        var firstName: String?
+        var lastName: String?
+    }
+    
+    extension UserPublicDTO{
+        init(from user: User) throws {
+            self.id = try user.requireID()
+            self.firstName = user.firstName
+            self.lastName = user.lastName
+            self.userName = user.userName
+            self.email = user.email
+            self.streakNumber = user.streakNumber
+            self.challengeNumber = user.challengeNumber
+            self.imageProfil = user.imageProfil
+        }
     }
 }
