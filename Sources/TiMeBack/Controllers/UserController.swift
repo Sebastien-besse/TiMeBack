@@ -402,7 +402,7 @@ struct UserController: RouteCollection {
         }
         
         @Sendable
-        func patchUserChallenge(req: Request) async throws -> UserPublicDTO{
+        func patchUserChallenge(req: Request) async throws -> UserChallengeResponseDTO{
             let payload = try req.auth.require(UserPayload.self)
             
             // Récupérer l'utilisateur à mettre à jour depuis la base de données
@@ -418,7 +418,7 @@ struct UserController: RouteCollection {
             try await user.save(on: req.db)
             
             // Retourner l'utilisateur mis à jour
-            return try UserPublicDTO(from: user)
+            return  UserChallengeResponseDTO(challengeNumber: user.challengeNumber)
         }
 
         
