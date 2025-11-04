@@ -60,7 +60,8 @@ struct UserChallengeDTO: Content{
         var firstName: String?
         var lastName: String?
     }
-    
+}
+
     extension UserPublicDTO{
         init(from user: User) throws {
             self.id = try user.requireID()
@@ -73,4 +74,3 @@ struct UserChallengeDTO: Content{
             self.imageProfil = user.imageProfil
         }
     }
-}

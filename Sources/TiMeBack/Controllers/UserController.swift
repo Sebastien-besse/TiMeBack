@@ -400,7 +400,6 @@ struct UserController: RouteCollection {
 
             return UserStreakResponseDTO(streakNumber: user.streakNumber)
         }
-
         
         @Sendable
         func patchUserChallenge(req: Request) async throws -> UserPublicDTO{
@@ -414,20 +413,6 @@ struct UserController: RouteCollection {
             let updateData = try req.content.decode(UserChallengeDTO.self)
             
             user.challengeNumber = updateData.challengeNumber
-            
-            try await user.save(on: req.db)
-            if let lastName = updateData.lastName {
-                user.lastName = lastName
-            }
-            
-            if let email = updateData.email {
-                user.email = email
-            }
-            
-            // Si un mot de passe est envoyé, le hasher
-            if let password = updateData.password, !password.isEmpty {
-                user.password = try Bcrypt.hash(password)
-            }
             
             // Enregistrer les changements
             try await user.save(on: req.db)
