@@ -53,15 +53,19 @@ struct UserStreakResponseDTO: Content {
 
 struct UserChallengeDTO: Content{
     var challengeNumber: Int
-    struct UpdateUserDTO: Content {
-        var userName: String?
-        var email: String?
-        var password: String?
-        var firstName: String?
-        var lastName: String?
-    }
-}
 
+}
+struct UserChallengeResponseDTO: Content{
+    var challengeNumber: Int
+
+}
+struct UpdateUserDTO: Content {
+    var userName: String?
+    var email: String?
+    var password: String?
+    var firstName: String?
+    var lastName: String?
+}
     extension UserPublicDTO{
         init(from user: User) throws {
             self.id = try user.requireID()
