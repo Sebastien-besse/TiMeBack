@@ -371,7 +371,6 @@ struct UserController: RouteCollection {
             // Si un mot de passe est envoyé → on le rehash
             if !updateData.password.isEmpty {
                 user.password = try Bcrypt.hash(updateData.password)
-                print("✅ [Update] Mot de passe mis à jour et hashé")
             }
             
             // Si une nouvelle image est fournie
