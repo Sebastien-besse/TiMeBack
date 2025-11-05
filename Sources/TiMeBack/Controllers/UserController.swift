@@ -91,15 +91,15 @@ struct UserController: RouteCollection {
         }
         
         @Sendable
-        func profile(req: Request) async throws -> UserDTO {
+        func profile(req: Request) async throws -> UserPublicDTO {
             // Essaye d'extraire le payload JWT de la requête
             let payload = try req.auth.require(UserPayload.self)
             // Recherche l'utilisateur dans la base de données en utilisant l'ID extrait du payload
             guard let user = try await User.find(payload.id, on: req.db) else {
                 throw Abort (.notFound)
             }
-            // Convertit l'utilisateur en DTO pour ne retourner que les informations nécessaires return utilisateur.toDTO()
-            return user.toDTO()
+            // Convertit l'utilisateur en DTO pour ne retourner que les informations nécessaires
+            return try UserPublicDTO(from: user)
         }
         
         
@@ -371,7 +371,6 @@ struct UserController: RouteCollection {
             // Si un mot de passe est envoyé → on le rehash
             if !updateData.password.isEmpty {
                 user.password = try Bcrypt.hash(updateData.password)
-                print("✅ [Update] Mot de passe mis à jour et hashé")
             }
             
             // Si une nouvelle image est fournie
