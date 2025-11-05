@@ -11,12 +11,13 @@ import Vapor
 struct MotivationController: RouteCollection {
     func boot(routes: any RoutesBuilder) throws {
         let motivation = routes.grouped("motivation")
+        let protectedRoute = motivation.grouped(JWTMiddleware())
         
-        motivation.get(use: getAll)
-        motivation.get(":id", use: getById)
-        motivation.post("create", use: create)
-        motivation.put(":id", use: update)
-        motivation.delete(":id", use: delete)
+        protectedRoute.get(use: getAll)
+        protectedRoute.get(":id", use: getById)
+        protectedRoute.post("create", use: create)
+        protectedRoute.put(":id", use: update)
+        protectedRoute.delete(":id", use: delete)
     }
     
     //MARK: - GET Motivation by id

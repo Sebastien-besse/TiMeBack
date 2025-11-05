@@ -10,6 +10,7 @@ import Vapor
 struct EmotionCategoryController: RouteCollection {
     func boot(routes: any RoutesBuilder) throws {
         let categories = routes.grouped("emotion-category")
+        let protectedRoutes = categories.grouped(JWTMiddleware())
         
         categories.get(use: listEmotionCategories)
         categories.get(":id", use: getEmotionCategoryById)
